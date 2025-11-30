@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Insta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{background:#050505;color:#f1f1f1}
+    a{text-decoration:none;color:inherit}
+    button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+    input,textarea,select{font:inherit}
+
+    header{
+      position:fixed;top:0;left:0;right:0;height:60px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 16px;
+      background:rgba(8,8,8,.96);backdrop-filter:blur(10px);
+      border-bottom:1px solid #272727;z-index:100
+    }
+    .logo-area{display:flex;align-items:center;gap:8px;cursor:pointer}
+    .logo-icon{
+      width:28px;height:20px;border-radius:6px;
+      background:linear-gradient(135deg,#f97316,#ec4899);
+      position:relative;box-shadow:0 0 0 1px rgba(255,255,255,.1)
+    }
+    .logo-icon::after{
+      content:"";position:absolute;top:50%;left:54%;transform:translate(-50%,-50%);
+      border-style:solid;border-width:6px 0 6px 9px;border-color:transparent transparent transparent #fff
+    }
+    .logo-text{font-weight:700;letter-spacing:.5px;font-size:20px}
+    .logo-sub{font-size:11px;color:#aaa;margin-top:-2px}
+
+    .search-area{flex:0 1 420px;display:flex;align-items:center;gap:8px;max-width:50vw}
+    .search-area input{
+      flex:1;background:#111;border:1px solid #303030;padding:8px 12px;
+      border-radius:18px 0 0 18px;color:#fff;outline:none
+    }
+    .search-area input::placeholder{color:#777}
+    .search-btn{
+      width:52px;height:36px;border-radius:0 18px 18px 0;
+      background:#222;border:1px solid #303030;border-left:none;
+      display:flex;align-items:center;justify-content:center;font-size:16px
+    }
+
+    .header-right{display:flex;align-items:center;gap:12px;font-size:13px}
+    .upload-icon-btn{
+      padding:6px 8px;border-radius:999px;background:#181818;border:1px solid #303030;
+      display:flex;align-items:center;gap:6px
+    }
+    .avatar-wrapper{display:flex;align-items:center;gap:8px;cursor:pointer}
+    .avatar{
+      width:32px;height:32px;border-radius:50%;
+      background:linear-gradient(135deg,#22c55e,#3b82f6);
+      display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;overflow:hidden
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .avatar-name{
+      font-size:12px;color:#d4d4d4;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+    }
+
+    .layout{
+      margin-top:60px;display:grid;grid-template-columns:220px minmax(0,1fr);
+      min-height:calc(100vh - 60px)
+    }
+    @media (max-width:900px){
+      .layout{grid-template-columns:70px minmax(0,1fr)}
+      .nav-item span.label,.sidebar-title{display:none}
+    }
+    @media (max-width:640px){
+      header{flex-wrap:wrap;height:auto;gap:8px;padding-bottom:8px}
+      .search-area{order:3;flex:1 1 100%;max-width:100%}
+      .layout{grid-template-columns:60px minmax(0,1fr)}
+      .logo-sub{display:none}
+    }
+
+    aside{
+      border-right:1px solid #1f1f1f;background:#050505;
+      padding:10px 8px 12px;position:sticky;top:60px;align-self:start;
+      max-height:calc(100vh - 60px);overflow-y:auto
+    }
+    .nav-section{margin-bottom:16px}
+    .nav-item{
+      width:100%;display:flex;align-items:center;gap:10px;
+      padding:8px 10px;border-radius:10px;font-size:14px;color:#e5e5e5;
+      transition:background .15s,transform .08s
+    }
+    .nav-item:hover{background:#181818}
+    .nav-item.active{
+      background:#f1f1f1;color:#111;font-weight:600;transform:translateX(1px)
+    }
+    .nav-icon{font-size:16px;width:18px;text-align:center}
+    .sidebar-title{
+      font-size:11px;text-transform:uppercase;color:#888;
+      margin:4px 8px 6px
+    }
+    .hint-text{font-size:11px;color:#666;margin:4px 8px 0}
+
+    main{padding:16px 20px 24px;overflow-x:hidden}
+    .section{display:none}
+    .section.active{display:block}
+    .section-header{
+      margin-bottom:14px;display:flex;align-items:baseline;justify-content:space-between;gap:8px
+    }
+    .section-header h1{font-size:22px}
+    .section-header span{font-size:13px;color:#a3a3a3}
+
+    .banner{
+      background:#111827;border:1px solid #1f2937;border-radius:12px;
+      padding:10px 12px;font-size:12px;margin-bottom:14px;
+      display:flex;align-items:flex-start;gap:8px
+    }
+    .banner-icon{font-size:16px;margin-top:1px}
+    .notice-text{color:#f97316}
+
+    .video-grid,.music-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px
+    }
+    .video-card,.music-card{
+      display:flex;flex-direction:column;gap:8px;
+      background:#080808;border-radius:14px;border:1px solid #181818;
+      padding:8px;cursor:pointer
+    }
+    .thumb{
+      position:relative;border-radius:10px;overflow:hidden;
+      background:#111;padding-top:56.25%
+    }
+    .thumb video{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:cover;background:#000
+    }
+    .thumb-placeholder{
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      background:radial-gradient(circle at top left,#f97316,transparent 55%),
+                 radial-gradient(circle at bottom right,#22c55e,transparent 55%);
+      color:rgba(0,0,0,.7);font-weight:700;font-size:26px
+    }
+
+    .audio-thumb{
+      border-radius:10px;
+      background:radial-gradient(circle at top left,#22c55e,transparent 55%),
+                 radial-gradient(circle at bottom right,#3b82f6,transparent 55%);
+      padding:10px;display:flex;flex-direction:column;gap:6px;font-size:12px
+    }
+    .audio-thumb audio{width:100%}
+
+    .video-info{display:grid;grid-template-columns:auto 1fr;gap:8px}
+    .channel-avatar{
+      width:32px;height:32px;border-radius:50%;background:#1f2933;
+      display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;
+      overflow:hidden;cursor:pointer
+    }
+    .channel-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+    .video-texts{display:flex;flex-direction:column;gap:2px}
+    .video-title{font-size:14px;font-weight:600;line-height:1.3}
+    .video-meta{font-size:11px;color:#a3a3a3}
+    .channel-link{text-decoration:underline;text-decoration-style:dotted;cursor:pointer}
+    .category-pill{
+      display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;
+      border:1px solid #272727;font-size:10px;margin-top:4px;color:#d4d4d4
+    }
+
+    .empty-state{
+      border-radius:14px;border:1px dashed #3f3f46;
+      padding:18px 16px;font-size:13px;color:#a1a1aa;
+      display:flex;flex-direction:column;gap:4px
+    }
+    .empty-state strong{color:#e5e5e5}
+
+    .form-grid{
+      display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px
+    }
+    @media (max-width:900px){.form-grid{grid-template-columns:1fr}}
+
+    .card{
+      background:#080808;border-radius:14px;border:1px solid #181818;
+      padding:14px 16px;font-size:13px;margin-bottom:12px
+    }
+    .card h2{font-size:16px;margin-bottom:10px}
+
+    .form-field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+    .form-field label{font-size:12px;color:#d4d4d4}
+    .form-field small{font-size:11px;color:#71717a}
+    .form-field input[type=text],.form-field textarea,.form-field select{
+      background:#050505;border-radius:8px;border:1px solid #272727;
+      padding:8px 9px;color:#e5e5e5;outline:none
+    }
+    .form-field textarea{resize:vertical;min-height:60px;max-height:150px}
+    .form-field input[type=file]{font-size:11px}
+
+    .btn-primary{
+      padding:8px 14px;border-radius:999px;
+      background:linear-gradient(135deg,#f97316,#ec4899);
+      color:#111827;font-size:13px;font-weight:600;border:none;margin-top:4px
+    }
+    .btn-secondary{
+      padding:6px 12px;border-radius:999px;background:#18181b;color:#e4e4e7;
+      font-size:12px;border:1px solid #3f3f46
+    }
+    .inline{display:inline-flex;gap:8px;align-items:center}
+
+    .avatar-preview{
+      margin-top:6px;width:64px;height:64px;border-radius:50%;overflow:hidden;
+      background:#111827;display:flex;align-items:center;justify-content:center;
+      font-size:24px;font-weight:700;color:#e5e5e5
+    }
+    .avatar-preview img{width:100%;height:100%;object-fit:cover;display:block}
+
+    .tagline{font-size:12px;color:#9ca3af;margin-top:4px}
+    .card.disabled{opacity:.4;pointer-events:none}
+
+    .channel-header-view{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .channel-page-avatar{
+      width:64px;height:64px;border-radius:50%;
+      background:#111827;display:flex;align-items:center;justify-content:center;
+      font-size:26px;font-weight:700;overflow:hidden
+    }
+    .channel-page-avatar img{width:100%;height:100%;object-fit:cover}
+    .channel-page-name{font-size:18px;font-weight:600}
+    .channel-page-meta{font-size:12px;color:#9ca3af}
+
+    .video-view-layout{
+      display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.1fr);gap:16px
+    }
+    @media (max-width:900px){.video-view-layout{grid-template-columns:1fr}}
+    .video-player-wrapper{
+      background:#000;border-radius:14px;overflow:hidden;border:1px solid #181818
+    }
+    .video-player-wrapper video,
+    .video-player-wrapper audio{width:100%;height:auto;display:block;background:#000}
+
+    .like-btn{
+      margin-top:8px;padding:6px 12px;border-radius:999px;border:1px solid #3f3f46;
+      background:#18181b;font-size:12px;display:inline-flex;gap:6px;align-items:center
+    }
+    .like-btn.liked{background:#f97316;border-color:#f97316;color:#111827}
+
+    #commentsList,#musicCommentsList{
+      display:flex;flex-direction:column;gap:6px;font-size:12px;
+      max-height:220px;overflow-y:auto
+    }
+    .comment-item{padding:6px 8px;border-radius:8px;background:#111827}
+    .comment-meta{font-size:11px;color:#9ca3af;margin-bottom:2px}
+
+    #recommendedList{
+      display:flex;flex-direction:column;gap:6px;font-size:12px
+    }
+    .recommended-item{
+      display:flex;gap:8px;cursor:pointer;padding:6px 8px;border-radius:8px;
+      background:#050505;border:1px solid #18181b
+    }
+    .recommended-thumb{
+      width:80px;height:45px;border-radius:6px;background:#111827;flex-shrink:0;overflow:hidden
+    }
+    .recommended-thumb video{width:100%;height:100%;object-fit:cover}
+    .recommended-texts{display:flex;flex-direction:column;gap:2px}
+
+    footer{
+      margin-top:24px;padding-top:12px;border-top:1px solid #18181b;
+      font-size:11px;color:#6b7280;text-align:center
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo-area" id="logoArea">
+    <div class="logo-icon"></div>
+    <div>
+      <div class="logo-text">Insta</div>
+      <div class="logo-sub">Offline Social Media</div>
+    </div>
+  </div>
+
+  <div class="search-area">
+    <input type="text" id="searchInput" placeholder="Videolarda ara" />
+    <button class="search-btn" id="searchBtn">🔍</button>
+  </div>
+
+  <div class="header-right">
+    <button class="upload-icon-btn" id="headerUploadBtn">
+      ⬆️ <span>Yükle</span>
+    </button>
+
+    <div class="avatar-wrapper" id="openAccountFromAvatar">
+      <div class="avatar" id="headerAvatar">
+        <span id="headerAvatarInitial">?</span>
+      </div>
+      <span class="avatar-name" id="headerChannelName">Kanal yok</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="nav-section">
+      <button class="nav-item active" data-section="home">
+        <span class="nav-icon">▶️</span><span class="label">Ana Sayfa</span>
+      </button>
+      <button class="nav-item" data-section="upload">
+        <span class="nav-icon">⬆️</span><span class="label">Video Yükle</span>
+      </button>
+      <button class="nav-item" data-section="music">
+        <span class="nav-icon">🎵</span><span class="label">Insta Music</span>
+      </button>
+      <button class="nav-item" data-section="shorts">
+        <span class="nav-icon">📱</span><span class="label">Shorts</span>
+      </button>
+      <button class="nav-item" data-section="subs">
+        <span class="nav-icon">📺</span><span class="label">Abonelikler</span>
+      </button>
+      <button class="nav-item" data-section="settings">
+        <span class="nav-icon">⚙️</span><span class="label">Ayarlar</span>
+      </button>
+    </div>
+  </aside>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="section active">
+      <div class="section-header">
+        <div>
+          <h1>Videolar</h1>
+          <div class="tagline" id="homeTagline">
+            Bu cihazdaki tüm Insta hesaplarından yüklenen (Shorts olmayan) videolar.
+          </div>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="banner-icon">💡</div>
+        <div>
+          Videolar ve müzikler seçtiğin Data klasörüne
+          <code>insta-data.json</code> ve medya dosyaları olarak kaydedilir.
+        </div>
+      </div>
+
+      <div id="videosEmpty" class="empty-state">
+        <strong>Hiç video yok</strong>
+        <span>Hesap oluştur, sonra “Video Yükle” sekmesinden video ekle.</span>
+      </div>
+      <div id="videoGrid" class="video-grid" style="display:none;"></div>
+    </section>
+
+    <!-- UPLOAD VIDEO -->
+    <section id="upload" class="section">
+      <div class="section-header">
+        <div>
+          <h1>Yeni Video Yükle</h1>
+          <div class="tagline">
+            Dosyalar cihazından okunur, base64 olarak bellekte ve Data klasöründe saklanır.
+          </div>
+        </div>
+      </div>
+
+      <div id="uploadNoChannelNotice" class="banner" style="display:none;">
+        <div class="banner-icon">⚠️</div>
+        <div class="notice-text">
+          Video yüklemek için önce Ayarlar sekmesinden bir hesap / kanal oluştur.
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <form id="uploadForm" class="card">
+          <h2>Video Bilgileri</h2>
+
+          <div class="form-field">
+            <label for="videoTitle">Başlık</label>
+            <input type="text" id="videoTitle" placeholder="Örn: Güneş Sistemi Deneyi" required />
+          </div>
+
+          <div class="form-field">
+            <label for="videoDesc">Açıklama</label>
+            <textarea id="videoDesc" placeholder="Kısa bir açıklama yaz."></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="videoCategory">Kategori</label>
+            <select id="videoCategory">
+              <option value="education">Eğitim</option>
+              <option value="science">Fen / Bilim</option>
+              <option value="music">Müzik</option>
+              <option value="vlog">Vlog</option>
+              <option value="gaming">Oyun</option>
+              <option value="other">Diğer</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="videoIsShort">Shorts</label>
+            <div class="inline">
+              <input type="checkbox" id="videoIsShort" />
+              <small>Shorts için video süresi en fazla 60 saniye olabilir.</small>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="videoFile">Video Dosyası</label>
+            <input type="file" id="videoFile" accept="video/*" required />
+            <small>Dosya sunucuya gitmez. Base64 olarak saklanır (büyük dosyalar belleği yorabilir).</small>
+          </div>
+
+          <button type="submit" class="btn-primary">Videoyu Ekle</button>
+        </form>
+
+        <div class="card">
+          <h2>Ne Olacak?</h2>
+          <p style="margin-bottom:8px;">
+            Formu gönderdiğinde, video listene yeni bir kart eklenecek. Kartta:
+          </p>
+          <ul style="font-size:12px;color:#d4d4d8;margin-left:16px;margin-bottom:8px;">
+            <li>Başlık ve açıklama</li>
+            <li>Kanal adı ve profil resmi</li>
+            <li>Kategori etiketi ve izlenme sayısı</li>
+          </ul>
+          <p style="font-size:12px;color:#9ca3af;">
+            Tüm veriler sadece seçtiğin Data klasörüne yazılır.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MUSIC -->
+    <section id="music" class="section">
+      <div class="section-header">
+        <div>
+          <h1>Insta Music</h1>
+          <div class="tagline">
+            Burada bu hesapla eklediğin ses dosyaları görünür.
+          </div>
+        </div>
+      </div>
+
+      <div id="musicNoChannelNotice" class="banner" style="display:none;">
+        <div class="banner-icon">⚠️</div>
+        <div class="notice-text">
+          Müzik eklemek için önce Ayarlar sekmesinden bir hesap / kanal oluştur.
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <form id="musicForm" class="card">
+          <h2>Müzik Bilgileri (Ses Dosyası)</h2>
+
+          <div class="form-field">
+            <label for="musicTitle">Parça adı</label>
+            <input type="text" id="musicTitle" placeholder="Örn: Lo-fi Study Beat 01" required />
+          </div>
+
+          <div class="form-field">
+            <label for="musicDesc">Açıklama</label>
+            <textarea id="musicDesc" placeholder="Bu parçayı ne zaman / nasıl kullanıyorsun?"></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="musicGenre">Tür / Genre</label>
+            <input type="text" id="musicGenre" placeholder="Örn: Lo-fi, Chill, Focus" />
+          </div>
+
+          <div class="form-field">
+            <label for="musicFile">Ses Dosyası</label>
+            <input type="file" id="musicFile" accept="audio/*" required />
+            <small>Dosya base64 olarak bellekte tutulur, Data klasörüne yazılır.</small>
+          </div>
+
+          <button type="submit" class="btn-primary">Müziği Ekle</button>
+        </form>
+
+        <div class="card">
+          <h2>Müzik Listesi</h2>
+          <p style="font-size:12px;color:#9ca3af;margin-bottom:6px;">
+            Aşağıda bu hesapla eklediğin ses dosyaları görünecek.
+          </p>
+          <div id="musicEmpty" class="empty-state">
+            <strong>Hiç müzik yok</strong>
+            <span>Bir parça eklediğinde burada listelenmeye başlayacak.</span>
+          </div>
+          <div id="musicGrid" class="music-grid" style="display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SHORTS -->
+    <section id="shorts" class="section">
+      <div class="section-header">
+        <div>
+          <h1>Shorts</h1>
+          <div class="tagline">
+            Bu sayfada sadece Shorts olarak işaretlenen (≤ 60 saniye) videolar listelenir.
+          </div>
+        </div>
+      </div>
+
+      <div id="shortsEmpty" class="empty-state">
+        <strong>Hiç Shorts yok</strong>
+        <span>Video yüklerken “Shorts” işaretle.</span>
+      </div>
+      <div id="shortsGrid" class="video-grid" style="display:none;"></div>
+    </section>
+
+    <!-- SUBSCRIPTIONS -->
+    <section id="subs" class="section">
+      <div class="section-header">
+        <div>
+          <h1>Abonelikler</h1>
+          <div class="tagline">
+            Burada abone olduğun kanalların (Shorts olmayan) videoları listelenir.
+          </div>
+        </div>
+      </div>
+
+      <div id="subsEmpty" class="empty-state">
+        <strong>Abonelik yok</strong>
+        <span>Bir videonun sayfasından kanala abone olduğunda burada gözükecek.</span>
+      </div>
+      <div id="subsVideos" class="video-grid" style="display:none;"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" class="section">
+      <div class="section-header">
+        <div>
+          <h1>Ayarlar</h1>
+          <div class="tagline">
+            Hesap oluştur, kanalını düzenle, dili değiştir, Data klasörüyle çalış.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <!-- Hesap girişi / değişim -->
+          <div id="accountLoginCard" class="card">
+            <h2>Hesap Girişi / Değiştirme</h2>
+
+            <div id="noUserView">
+              <p style="font-size:12px;color:#9ca3af;margin-bottom:8px;">
+                Önce Data klasörünü seçmelisin. Sonra kullanıcı adı ile hesap oluşturabilir / giriş yapabilirsin.
+              </p>
+              <div class="form-field">
+                <label for="loginUsername">Kullanıcı adı</label>
+                <input type="text" id="loginUsername" placeholder="Örn: nihal" />
+              </div>
+              <button id="loginBtn" class="btn-primary">Giriş / Hesap Oluştur</button>
+            </div>
+
+            <div id="hasUserView" style="display:none;">
+              <p style="font-size:12px;color:#9ca3af;margin-bottom:8px;">
+                Aktif hesap: <strong id="currentUserLabel"></strong>
+              </p>
+              <div class="form-field">
+                <label for="accountSelect">Hesap seç</label>
+                <select id="accountSelect"></select>
+              </div>
+              <div class="inline" style="margin-bottom:10px;">
+                <button id="switchAccountBtn" class="btn-secondary">Geçiş yap</button>
+                <button id="removeAccountBtn" class="btn-secondary">Hesabı kaldır</button>
+                <button id="logoutBtn" class="btn-secondary">Çıkış yap</button>
+              </div>
+
+              <div class="form-field">
+                <label for="newAccountUsername">Yeni hesap oluştur</label>
+                <input type="text" id="newAccountUsername" placeholder="Örn: nihal_2" />
+                <small>Mevcut hesaplara dokunmadan yeni kullanıcı ekler.</small>
+              </div>
+              <button id="createAccountBtn" class="btn-primary">Yeni Hesap Oluştur</button>
+            </div>
+          </div>
+
+          <!-- Kanal bilgileri -->
+          <form id="accountForm" class="card">
+            <h2>Kanal Bilgileri</h2>
+            <div class="form-field">
+              <label for="channelName">Kanal adı</label>
+              <input type="text" id="channelName" placeholder="Örn: Insta Fen Kanalı" />
+            </div>
+
+            <div class="form-field">
+              <label for="channelDesc">Kanal açıklaması</label>
+              <textarea id="channelDesc" placeholder="Kanalında neler paylaşıyorsun?"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Kanalı Kaydet</button>
+          </form>
+
+          <!-- Data klasörü & storage temizleme -->
+          <div class="card">
+            <h2>Data Klasörü & Temizleme</h2>
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:8px;">
+              Buradan projendeki <strong>Data</strong> klasörünü seçmelisin.
+              Insta, verilerini bu klasöre <code>insta-data.json</code> ve medya dosyaları olarak yazar. Eğer Data klasörün yoksa oluştur.
+            </p>
+            <div class="inline" style="flex-wrap:wrap;gap:8px;">
+              <button id="chooseDataDirBtn" class="btn-secondary">📁 Data klasörünü seç</button>
+              <button id="saveToDataBtn" class="btn-secondary">💾 Şimdi Data’ya kaydet</button>
+              <button id="loadFromDataBtn" class="btn-secondary">📂 Data’dan yükle</button>
+            </div>
+            <p style="font-size:11px;color:#9ca3af;margin-top:8px;">
+              Not: Tarayıcı güvenliğinden dolayı klasörü otomatik seçemiyoruz.
+              İlk kullanımda Data klasörünü elle göstermen gerekiyor.
+            </p>
+
+            <hr style="border-color:#27272a;margin:10px 0;">
+
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:8px;">
+              Aşağıdaki buton Insta’ya ait verileri ve Data klasöründeki
+              ilgili dosyaları siler.
+            </p>
+            <button id="clearStorageBtn" class="btn-secondary">
+              Tüm Insta Verisini Sil
+            </button>
+          </div>
+
+          <!-- Dil seçimi -->
+          <div class="card">
+            <h2>Dil</h2>
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:6px;">
+              Şimdilik Türkçe ve İngilizce arayüz var.
+            </p>
+            <div class="form-field">
+              <label for="langSelectSettings">Arayüz dili</label>
+              <select id="langSelectSettings">
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <!-- Profil resmi -->
+          <div class="card" id="avatarCard">
+            <h2>Profil Resmi</h2>
+            <div class="form-field">
+              <label for="avatarFile">Profil fotoğrafı yükle</label>
+              <input type="file" id="avatarFile" accept="image/*" />
+              <small>Fotoğraf sadece Data klasöründeki JSON’da base64 olarak saklanır.</small>
+            </div>
+            <div class="form-field">
+              <span>Önizleme:</span>
+              <div class="avatar-preview" id="avatarPreview">
+                <span id="avatarPreviewInitial">?</span>
+              </div>
+            </div>
+            <button type="button" class="btn-secondary" id="clearAvatarBtn">
+              Profil resmini sıfırla
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHANNEL VIEW -->
+    <section id="channelView" class="section">
+      <div class="section-header">
+        <div>
+          <h1>Kanal</h1>
+          <div class="tagline">Video veya müzik kartındaki kanal adına tıklayarak buraya gelirsin.</div>
+        </div>
+      </div>
+
+      <div id="channelViewContent" class="card">
+        <div class="channel-header-view">
+          <div class="channel-page-avatar" id="channelViewAvatar">
+            <span id="channelViewAvatarInitial">?</span>
+          </div>
+          <div>
+            <div class="channel-page-name" id="channelViewName">Kanal adı</div>
+            <div class="channel-page-meta" id="channelViewMeta">0 video • 0 müzik</div>
+            <div style="font-size:12px;color:#9ca3af;margin-top:4px;" id="channelViewDesc">
+              Kanal açıklaması burada görünecek.
+            </div>
+          </div>
+        </div>
+
+        <h2 style="font-size:14px;margin-bottom:8px;">Videolar</h2>
+        <div id="channelViewVideosEmpty" class="empty-state" style="margin-bottom:10px;">
+          <strong>Bu kanalda video yok</strong>
+          <span>Video yüklendiğinde burada listelenir. (Shorts videoları sadece Shorts sayfasında görünür.)</span>
+        </div>
+        <div id="channelViewVideos" class="video-grid" style="display:none;margin-bottom:14px;"></div>
+
+        <h2 style="font-size:14px;margin-bottom:8px;">Müzikler</h2>
+        <div id="channelViewMusicEmpty" class="empty-state">
+          <strong>Bu kanalda müzik yok</strong>
+          <span>Müzik eklendiğinde burada listelenir.</span>
+        </div>
+        <div id="channelViewMusic" class="music-grid" style="display:none;"></div>
+      </div>
+    </section>
+
+    <!-- VIDEO VIEW -->
+    <section id="videoView" class="section">
+      <div class="section-header">
+        <div>
+          <h1 id="videoViewTitle">Video</h1>
+          <div class="tagline" id="videoViewSubtitle">Video detay sayfası.</div>
+        </div>
+      </div>
+
+      <div class="video-view-layout">
+        <div>
+          <div class="video-player-wrapper">
+            <video id="videoViewPlayer" controls></video>
+          </div>
+          <button id="videoLikeBtn" class="like-btn">
+            <span id="videoLikeIcon">👍</span>
+            <span id="videoLikeText">Beğen</span>
+            <span id="videoLikeCount">(0)</span>
+          </button>
+
+          <div class="card" id="commentsCard" style="margin-top:12px;">
+            <h2>Yorumlar</h2>
+            <div id="commentsList">
+              <div style="font-size:12px;color:#9ca3af;">Henüz yorum yok. İlk yorumu sen yaz.</div>
+            </div>
+            <form id="commentForm" style="margin-top:8px;">
+              <div class="form-field">
+                <label for="commentText">Yorum yaz</label>
+                <textarea id="commentText" rows="2" placeholder="Yorumunu yaz..."></textarea>
+              </div>
+              <button type="submit" class="btn-secondary">Gönder</button>
+            </form>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h2 id="videoViewChannelName" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted;">Kanal adı</h2>
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:4px;" id="videoViewMeta">
+              Tarih • 0 izlenme
+            </p>
+            <p style="font-size:13px;margin-bottom:8px;" id="videoViewDesc">
+              Video açıklaması burada görünecek.
+            </p>
+            <button id="subscribeBtn" class="btn-secondary" style="margin-right:8px;">
+              Kanala abone ol
+            </button>
+            <span id="subscribeInfo" style="font-size:11px;color:#9ca3af;">
+              0 abone (demo)
+            </span>
+          </div>
+
+          <div class="card" id="recommendedCard">
+            <h2>Önerilen videolar</h2>
+            <div id="recommendedList">
+              <div style="font-size:12px;color:#9ca3af;">Henüz önerilecek başka video yok.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MUSIC VIEW -->
+    <section id="musicView" class="section">
+      <div class="section-header">
+        <div>
+          <h1 id="musicViewTitle">Parça</h1>
+          <div class="tagline" id="musicViewSubtitle">Müzik detay sayfası.</div>
+        </div>
+      </div>
+
+      <div class="video-view-layout">
+        <div>
+          <div class="video-player-wrapper">
+            <audio id="musicViewAudio" controls></audio>
+          </div>
+          <div class="card" style="margin-top:12px;">
+            <h2 id="musicViewChannelName">Kanal adı</h2>
+            <p style="font-size:12px;color:#9ca3af;margin-bottom:4px;" id="musicViewMeta">
+              Tarih • 0 dinlenme
+            </p>
+            <p style="font-size:13px;" id="musicViewDesc">
+              Müzik açıklaması burada görünecek.
+            </p>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h2>Yorumlar</h2>
+            <div id="musicCommentsList">
+              <div style="font-size:12px;color:#9ca3af;">Henüz yorum yok. İlk yorumu sen yaz.</div>
+            </div>
+            <form id="musicCommentForm" style="margin-top:8px;">
+              <div class="form-field">
+                <label for="musicCommentText">Yorum yaz</label>
+                <textarea id="musicCommentText" rows="2" placeholder="Yorumunu yaz..."></textarea>
+              </div>
+              <button type="submit" class="btn-secondary">Gönder</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Insta • Offline Social Media • Veriler yalnızca seçtiğin Data klasöründe saklanır.
+    </footer>
+  </main>
+</div>
+
+<script>
+  /* ========= STATE ========= */
+  const state = {
+    lang: "tr",
+    currentUser: null,
+    accounts: {}, // username: { channel, videos, music, subscriptions }
+    currentVideoId: null,
+    currentChannelView: null,
+    currentTrackId: null
+  };
+
+  // Data klasörü için handle
+  let dataDirHandle = null;
+
+  /* ========= DİL ========= */
+  const translations = {
+    tr: {
+      home_title: "Videolar",
+      home_tagline: "Bu cihazdaki tüm Insta hesaplarından yüklenen (Shorts olmayan) videolar.",
+      upload_title: "Yeni Video Yükle",
+      settings_title: "Ayarlar",
+      music_title: "Insta Music",
+      music_tagline: "Burada bu hesapla eklediğin ses dosyaları görünür.",
+      shorts_title: "Shorts",
+      shorts_tagline: "Bu sayfada sadece Shorts olarak işaretlenen (≤ 60 saniye) videolar listelenir.",
+      subs_title: "Abonelikler",
+      subs_tagline: "Burada abone olduğun kanalların (Shorts olmayan) videoları listelenir.",
+      settings_tagline: "Hesap oluştur, kanalını düzenle, dili değiştir, Data klasörüyle çalış.",
+      nav_home: "Ana Sayfa",
+      nav_upload: "Video Yükle",
+      nav_music: "Insta Music",
+      nav_shorts: "Shorts",
+      nav_subs: "Abonelikler",
+      nav_settings: "Ayarlar",
+      search_placeholder: "Videolarda ara",
+      header_upload: "Yükle",
+      footer: "Insta • Offline Social Media • Veriler yalnızca seçtiğin Data klasöründe saklanır."
+    },
+    en: {
+      home_title: "Videos",
+      home_tagline: "All non-Shorts videos from Insta accounts on this device.",
+      upload_title: "Upload New Video",
+      settings_title: "Settings",
+      music_title: "Insta Music",
+      music_tagline: "Audio tracks you added with this account.",
+      shorts_title: "Shorts",
+      shorts_tagline: "Only videos marked as Shorts (≤ 60 seconds) are listed here.",
+      subs_title: "Subscriptions",
+      subs_tagline: "Non-Shorts videos from channels you subscribed to.",
+      settings_tagline: "Create accounts, edit channels, change language and use the Data folder.",
+      nav_home: "Home",
+      nav_upload: "Upload",
+      nav_music: "Music",
+      nav_shorts: "Shorts",
+      nav_subs: "Subscriptions",
+      nav_settings: "Settings",
+      search_placeholder: "Search videos",
+      header_upload: "Upload",
+      footer: "Insta • Offline Social Media • Data is stored only in your selected Data folder."
+    }
+  };
+
+  function applyLanguage(lang){
+    state.lang = lang;
+    const dict = translations[lang] || translations.tr;
+
+    const homeH1 = document.querySelector("#home .section-header h1");
+    if(homeH1) homeH1.textContent = dict.home_title;
+    const homeTag = document.getElementById("homeTagline");
+    if(homeTag) homeTag.textContent = dict.home_tagline;
+
+    const uploadH1 = document.querySelector("#upload .section-header h1");
+    if(uploadH1) uploadH1.textContent = dict.upload_title;
+
+    const settingsH1 = document.querySelector("#settings .section-header h1");
+    if(settingsH1) settingsH1.textContent = dict.settings_title;
+    const settingsTag = document.querySelector("#settings .section-header .tagline");
+    if(settingsTag) settingsTag.textContent = dict.settings_tagline;
+
+    const musicH1 = document.querySelector("#music .section-header h1");
+    if(musicH1) musicH1.textContent = dict.music_title;
+    const musicTag = document.querySelector("#music .section-header .tagline");
+    if(musicTag) musicTag.textContent = dict.music_tagline;
+
+    const shortsH1 = document.querySelector("#shorts .section-header h1");
+    if(shortsH1) shortsH1.textContent = dict.shorts_title;
+    const shortsTag = document.querySelector("#shorts .section-header .tagline");
+    if(shortsTag) shortsTag.textContent = dict.shorts_tagline;
+
+    const subsH1 = document.querySelector("#subs .section-header h1");
+    if(subsH1) subsH1.textContent = dict.subs_title;
+    const subsTag = document.querySelector("#subs .section-header .tagline");
+    if(subsTag) subsTag.textContent = dict.subs_tagline;
+
+    const searchInputEl = document.getElementById("searchInput");
+    if(searchInputEl) searchInputEl.placeholder = dict.search_placeholder;
+
+    const uploadBtnLabel = document.querySelector("#headerUploadBtn span");
+    if(uploadBtnLabel) uploadBtnLabel.textContent = dict.header_upload;
+
+    document.querySelectorAll(".nav-item").forEach(btn=>{
+      const section = btn.dataset.section;
+      const labelEl = btn.querySelector(".label");
+      if(!labelEl) return;
+      const key = "nav_" + section;
+      if(dict[key]) labelEl.textContent = dict[key];
+    });
+
+    const footerEl = document.querySelector("footer");
+    if(footerEl) footerEl.textContent = dict.footer;
+  }
+
+  /* ========= DATA KLASÖRÜ (File System Access API) ========= */
+
+  async function dataUrlToBlob(dataUrl){
+    const res = await fetch(dataUrl);
+    return await res.blob();
+  }
+
+  function guessExtFromMime(mime, isVideo){
+    mime = mime || "";
+    if(mime.includes("mp4")) return ".mp4";
+    if(mime.includes("webm")) return ".webm";
+    if(mime.includes("ogg")) return ".ogg";
+    if(mime.includes("mpeg")) return isVideo ? ".mp4" : ".mp3";
+    if(mime.includes("wav")) return ".wav";
+    return isVideo ? ".mp4" : ".mp3";
+  }
+
+  function getExtFromDataUrl(dataUrl, isVideo){
+    try{
+      const m = dataUrl.match(/^data:(.+?);/);
+      const mime = m ? m[1] : "";
+      return guessExtFromMime(mime, isVideo);
+    }catch(e){
+      console.warn("MIME çözülemedi", e);
+      return isVideo ? ".mp4" : ".mp3";
+    }
+  }
+
+  function buildMediaFileName(prefix, owner, id, ext){
+    const safeOwner = (owner || "user").replace(/[^a-z0-9_\-]/gi, "_");
+    return `${prefix}_${safeOwner}_${id}${ext}`;
+  }
+
+  async function writeAllMediaFilesToDataFolder(){
+    if(!dataDirHandle) return;
+
+    try{
+      for(const username of Object.keys(state.accounts)){
+        const acc = state.accounts[username];
+        const videos = acc.videos || [];
+        const music  = acc.music  || [];
+
+        // Videolar
+        for(const v of videos){
+          if(!v.dataUrl) continue;
+          const ext = getExtFromDataUrl(v.dataUrl, true);
+          const fileName = buildMediaFileName("video", v.owner || username, v.id, ext);
+
+          try{
+            const fileHandle = await dataDirHandle.getFileHandle(fileName, { create: true });
+            const writable = await fileHandle.createWritable();
+            const blob = await dataUrlToBlob(v.dataUrl);
+            await writable.write(blob);
+            await writable.close();
+          }catch(err){
+            console.warn("Video yazılırken hata:", fileName, err);
+          }
+        }
+
+        // Müzikler
+        for(const t of music){
+          if(!t.dataUrl) continue;
+          const ext = getExtFromDataUrl(t.dataUrl, false);
+          const fileName = buildMediaFileName("music", t.owner || username, t.id, ext);
+
+          try{
+            const fileHandle = await dataDirHandle.getFileHandle(fileName, { create: true });
+            const writable = await fileHandle.createWritable();
+            const blob = await dataUrlToBlob(t.dataUrl);
+            await writable.write(blob);
+            await writable.close();
+          }catch(err){
+            console.warn("Müzik yazılırken hata:", fileName, err);
+          }
+        }
+      }
+    }catch(e){
+      console.warn("Medya dosyaları yazılırken genel hata:", e);
+    }
+  }
+
+  async function chooseDataFolder(){
+    try{
+      dataDirHandle = await window.showDirectoryPicker();
+      alert("Data klasörü seçildi. Projendeki 'Data' klasörünü seçmen önerilir.");
+    }catch(e){
+      console.warn(e);
+      alert("Klasör seçme iptal edildi veya desteklenmiyor.");
+    }
+  }
+
+  async function saveStateToDataFolder(silent){
+    if(!dataDirHandle) return;
+    try{
+      const fileHandle = await dataDirHandle.getFileHandle("insta-data.json",{create:true});
+      const writable = await fileHandle.createWritable();
+      const obj = { currentUser: state.currentUser, accounts: state.accounts };
+      await writable.write(JSON.stringify(obj));
+      await writable.close();
+
+      await writeAllMediaFilesToDataFolder();
+
+      if(!silent) alert("Veriler Data/insta-data.json dosyasına kaydedildi.");
+    }catch(e){
+      console.warn(e);
+      if(!silent) alert("Data klasörüne kaydederken hata oluştu.");
+    }
+  }
+
+  async function loadStateFromDataFolder(){
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      return;
+    }
+    try{
+      const fileHandle = await dataDirHandle.getFileHandle("insta-data.json");
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const obj = JSON.parse(text);
+      state.currentUser = obj.currentUser || null;
+      state.accounts = obj.accounts || {};
+
+      updateAccountLoginCard();
+      updateHeaderUI();
+      renderAllVideoSections();
+      renderMusic();
+      alert("Data klasöründeki veriler yüklendi.");
+    }catch(e){
+      console.warn(e);
+      alert("Data klasöründen veri okunamadı. Dosya yok veya bozuk olabilir.");
+    }
+  }
+
+  async function clearDataFileIfPossible(){
+    if(!dataDirHandle) return;
+    try{
+      for await (const entry of dataDirHandle.values()){
+        if(entry.kind === "file" && (entry.name === "insta-data.json" ||
+          entry.name.startsWith("video_") || entry.name.startsWith("music_"))){
+          await dataDirHandle.removeEntry(entry.name);
+        }
+      }
+    }catch(e){
+      console.warn("Data klasörünü temizlerken hata:", e);
+    }
+  }
+
+  // Eski isim: tarayıcıya değil, Data klasörüne kaydediyor
+  function saveAccountsToStorage(){
+    if(!dataDirHandle){
+      alert("Önce Ayarlar > Data klasöründen bir Data klasörü seçmelisin.");
+      showSection("settings");
+      return false;
+    }
+    saveStateToDataFolder(true);
+    return true;
+  }
+
+  function loadAccountsFromStorage(){ /* tarayıcıdan yükleme yok */ }
+  function loadCurrentUserFromStorage(){ /* tarayıcıdan yükleme yok */ }
+  function saveCurrentUserToStorage(){ /* tarayıcıya kaydetme yok */ }
+
+  /* ========= YARDIMCI FONK. ========= */
+  function getCurrentAccount(){
+    if(!state.currentUser) return null;
+    return state.accounts[state.currentUser] || null;
+  }
+  function getAllVideos(){
+    const all = [];
+    Object.keys(state.accounts).forEach(u=>{
+      const acc = state.accounts[u];
+      (acc.videos||[]).forEach(v=>all.push(v));
+    });
+    return all.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  }
+  function findVideoById(id){
+    return getAllVideos().find(v=>v.id===id) || null;
+  }
+  function findTrackById(id){
+    for(const u of Object.keys(state.accounts)){
+      const acc = state.accounts[u];
+      for(const t of (acc.music||[])){
+        if(t.id===id) return {track:t, owner:u};
+      }
+    }
+    return null;
+  }
+  function countSubscribers(channelUsername){
+    let c=0;
+    Object.keys(state.accounts).forEach(u=>{
+      const subs = state.accounts[u].subscriptions || [];
+      if(subs.includes(channelUsername)) c++;
+    });
+    return c;
+  }
+
+  /* ========= DOM SEÇİCİLER ========= */
+  const headerChannelName = document.getElementById("headerChannelName");
+  const headerAvatar = document.getElementById("headerAvatar");
+  const uploadForm = document.getElementById("uploadForm");
+  const musicForm = document.getElementById("musicForm");
+  const uploadNoChannelNotice = document.getElementById("uploadNoChannelNotice");
+  const musicNoChannelNotice = document.getElementById("musicNoChannelNotice");
+  const avatarCard = document.getElementById("avatarCard");
+  const videosEmpty = document.getElementById("videosEmpty");
+  const videoGrid = document.getElementById("videoGrid");
+  const shortsEmpty = document.getElementById("shortsEmpty");
+  const shortsGrid = document.getElementById("shortsGrid");
+  const musicEmpty = document.getElementById("musicEmpty");
+  const musicGrid = document.getElementById("musicGrid");
+  const subsEmpty = document.getElementById("subsEmpty");
+  const subsVideos = document.getElementById("subsVideos");
+
+  const channelViewAvatar = document.getElementById("channelViewAvatar");
+  const channelViewName = document.getElementById("channelViewName");
+  const channelViewMeta = document.getElementById("channelViewMeta");
+  const channelViewDesc = document.getElementById("channelViewDesc");
+  const channelViewVideos = document.getElementById("channelViewVideos");
+  const channelViewVideosEmpty = document.getElementById("channelViewVideosEmpty");
+  const channelViewMusic = document.getElementById("channelViewMusic");
+  const channelViewMusicEmpty = document.getElementById("channelViewMusicEmpty");
+
+  const videoViewPlayer = document.getElementById("videoViewPlayer");
+  const videoViewTitle = document.getElementById("videoViewTitle");
+  const videoViewChannelName = document.getElementById("videoViewChannelName");
+  const videoViewMeta = document.getElementById("videoViewMeta");
+  const videoViewDesc = document.getElementById("videoViewDesc");
+  const videoLikeBtn = document.getElementById("videoLikeBtn");
+  const videoLikeIcon = document.getElementById("videoLikeIcon");
+  const videoLikeText = document.getElementById("videoLikeText");
+  const videoLikeCount = document.getElementById("videoLikeCount");
+  const commentsList = document.getElementById("commentsList");
+  const commentForm = document.getElementById("commentForm");
+  const commentText = document.getElementById("commentText");
+  const subscribeBtn = document.getElementById("subscribeBtn");
+  const subscribeInfo = document.getElementById("subscribeInfo");
+  const recommendedList = document.getElementById("recommendedList");
+
+  const musicViewAudio = document.getElementById("musicViewAudio");
+  const musicViewTitle = document.getElementById("musicViewTitle");
+  const musicViewChannelName = document.getElementById("musicViewChannelName");
+  const musicViewMeta = document.getElementById("musicViewMeta");
+  const musicViewDesc = document.getElementById("musicViewDesc");
+  const musicCommentsList = document.getElementById("musicCommentsList");
+  const musicCommentForm = document.getElementById("musicCommentForm");
+  const musicCommentText = document.getElementById("musicCommentText");
+
+  /* ========= HEADER / HESAP UI ========= */
+  function updateHeaderUI(){
+    const acc = getCurrentAccount();
+    if(!acc){
+      headerChannelName.textContent = "Kanal yok";
+      headerAvatar.innerHTML = "";
+      const span = document.createElement("span");
+      span.id="headerAvatarInitial"; span.textContent="?";
+      headerAvatar.appendChild(span);
+
+      uploadForm.classList.add("disabled");
+      musicForm.classList.add("disabled");
+      uploadNoChannelNotice.style.display="flex";
+      musicNoChannelNotice.style.display="flex";
+      avatarCard.classList.add("disabled");
+      return;
+    }
+    const ch = acc.channel || {};
+    const name = ch.name || state.currentUser || "Kanalım";
+    const initial = name.trim()[0]?name.trim()[0].toUpperCase():"?";
+
+    headerChannelName.textContent = name;
+    headerAvatar.innerHTML="";
+    if(ch.avatarDataUrl){
+      const img=document.createElement("img"); img.src=ch.avatarDataUrl;
+      headerAvatar.appendChild(img);
+    }else{
+      const span=document.createElement("span");
+      span.id="headerAvatarInitial"; span.textContent=initial;
+      headerAvatar.appendChild(span);
+    }
+
+    const avatarPreview = document.getElementById("avatarPreview");
+    avatarPreview.innerHTML="";
+    if(ch.avatarDataUrl){
+      const img=document.createElement("img");img.src=ch.avatarDataUrl;
+      avatarPreview.appendChild(img);
+    }else{
+      const span=document.createElement("span");
+      span.id="avatarPreviewInitial"; span.textContent=initial;
+      avatarPreview.appendChild(span);
+    }
+
+    document.getElementById("channelName").value = ch.name || "";
+    document.getElementById("channelDesc").value = ch.desc || "";
+
+    uploadForm.classList.remove("disabled");
+    musicForm.classList.remove("disabled");
+    uploadNoChannelNotice.style.display="none";
+    musicNoChannelNotice.style.display="none";
+    avatarCard.classList.remove("disabled");
+  }
+
+  /* ========= HESAP GİRİŞ / DEĞİŞİM ========= */
+  const noUserView = document.getElementById("noUserView");
+  const hasUserView = document.getElementById("hasUserView");
+  const currentUserLabel = document.getElementById("currentUserLabel");
+  const loginUsernameInput = document.getElementById("loginUsername");
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const clearStorageBtn = document.getElementById("clearStorageBtn");
+  const accountSelect = document.getElementById("accountSelect");
+  const switchAccountBtn = document.getElementById("switchAccountBtn");
+  const removeAccountBtn = document.getElementById("removeAccountBtn");
+  const newAccountUsernameInput = document.getElementById("newAccountUsername");
+  const createAccountBtn = document.getElementById("createAccountBtn");
+
+  function updateAccountLoginCard(){
+    const usernames = Object.keys(state.accounts);
+    if(!state.currentUser && usernames.length===0){
+      noUserView.style.display="block";
+      hasUserView.style.display="none";
+    }else{
+      noUserView.style.display="none";
+      hasUserView.style.display="block";
+      currentUserLabel.textContent = state.currentUser || "-";
+      accountSelect.innerHTML="";
+      usernames.forEach(u=>{
+        const opt=document.createElement("option");
+        opt.value=u; opt.textContent=u;
+        if(u===state.currentUser) opt.selected=true;
+        accountSelect.appendChild(opt);
+      });
+    }
+  }
+
+  function ensureAccount(username){
+    if(!state.accounts[username]){
+      state.accounts[username] = {
+        channel:{name:username,desc:"",avatarDataUrl:null},
+        videos:[],
+        music:[],
+        subscriptions:[]
+      };
+    }else{
+      const acc=state.accounts[username];
+      if(!Array.isArray(acc.videos))acc.videos=[];
+      if(!Array.isArray(acc.music))acc.music=[];
+      if(!Array.isArray(acc.subscriptions))acc.subscriptions=[];
+    }
+  }
+
+  function createOrLoginUser(username){
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    const u=username.trim();
+    if(!u) return;
+    ensureAccount(u);
+    state.currentUser=u;
+    if(!saveAccountsToStorage()) return;
+    updateAccountLoginCard();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+    showSection("home");
+  }
+
+  loginBtn.addEventListener("click",()=>{
+    const raw=loginUsernameInput.value.trim();
+    if(!raw) return;
+    createOrLoginUser(raw);
+    loginUsernameInput.value="";
+  });
+
+  createAccountBtn.addEventListener("click",()=>{
+    const raw=newAccountUsernameInput.value.trim();
+    if(!raw) return;
+    if(state.accounts[raw]){
+      alert("Bu kullanıcı adı zaten var.");
+      return;
+    }
+    createOrLoginUser(raw);
+    newAccountUsernameInput.value="";
+  });
+
+  switchAccountBtn.addEventListener("click",()=>{
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    const sel=accountSelect.value;
+    if(!sel) return;
+    state.currentUser=sel;
+    updateAccountLoginCard();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+    showSection("home");
+  });
+
+  removeAccountBtn.addEventListener("click",()=>{
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    const sel=accountSelect.value;
+    if(!sel || !state.accounts[sel]) return;
+    if(!confirm(`"${sel}" hesabını ve tüm verilerini silmek istiyor musun?`)) return;
+    delete state.accounts[sel];
+    if(state.currentUser===sel){
+      state.currentUser=null;
+    }
+    if(!saveAccountsToStorage()) return;
+    updateAccountLoginCard();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+    showSection("home");
+  });
+
+  logoutBtn.addEventListener("click",()=>{
+    state.currentUser=null;
+    updateAccountLoginCard();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+    showSection("home");
+  });
+
+  clearStorageBtn.addEventListener("click", async ()=>{
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    if(!confirm("Tüm Insta verisini silmek istiyor musun?\n(Data klasöründeki insta-data.json, video_*, music_* silinir.)")) return;
+    state.accounts = {};
+    state.currentUser = null;
+    await clearDataFileIfPossible();
+    location.reload();
+  });
+
+  /* ========= NAV ========= */
+  const navButtons=document.querySelectorAll(".nav-item");
+  const sections=document.querySelectorAll(".section");
+  function showSection(id){
+    sections.forEach(sec=>sec.classList.toggle("active",sec.id===id));
+    navButtons.forEach(btn=>btn.classList.toggle("active",btn.dataset.section===id));
+  }
+  navButtons.forEach(btn=>btn.addEventListener("click",()=>showSection(btn.dataset.section)));
+  document.getElementById("headerUploadBtn").addEventListener("click",()=>{
+    if(!getCurrentAccount()) showSection("settings"); else showSection("upload");
+  });
+  document.getElementById("openAccountFromAvatar").addEventListener("click",()=>showSection("settings"));
+  document.getElementById("logoArea").addEventListener("click",()=>showSection("home"));
+
+  /* ========= VIDEO RENDER ========= */
+  function renderVideoList(targetGrid,targetEmpty,list){
+    targetGrid.innerHTML="";
+    if(!list || list.length===0){
+      targetGrid.style.display="none";
+      targetEmpty.style.display="flex";
+      return;
+    }
+    targetGrid.style.display="grid";
+    targetEmpty.style.display="none";
+
+    list.forEach(video=>{
+      const card=document.createElement("article");
+      card.className="video-card";
+      card.dataset.videoId=video.id;
+
+      const thumb=document.createElement("div");
+      thumb.className="thumb";
+      if(video.dataUrl){
+        const v=document.createElement("video");
+        v.src=video.dataUrl;v.muted=true;
+        thumb.appendChild(v);
+      }else{
+        const ph=document.createElement("div");
+        ph.className="thumb-placeholder"; ph.textContent="VID";
+        thumb.appendChild(ph);
+      }
+
+      const info=document.createElement("div");
+      info.className="video-info";
+
+      const avatar=document.createElement("div");
+      avatar.className="channel-avatar";
+      avatar.dataset.owner=video.owner;
+
+      const ownerAcc=state.accounts[video.owner];
+      const ch=ownerAcc?ownerAcc.channel||{}:{};
+      const chName=ch.name||video.owner||"Kanal";
+
+      if(ch.avatarDataUrl){
+        const img=document.createElement("img");img.src=ch.avatarDataUrl;
+        avatar.appendChild(img);
+      }else{
+        const s=document.createElement("span");
+        s.textContent=chName.trim()[0]?chName.trim()[0].toUpperCase():"?";
+        avatar.appendChild(s);
+      }
+
+      const texts=document.createElement("div");texts.className="video-texts";
+      const title=document.createElement("div");
+      title.className="video-title";title.textContent=video.title;
+
+      const meta=document.createElement("div");
+      meta.className="video-meta";
+      const createdAt=new Date(video.createdAt);
+      const channelSpan=document.createElement("span");
+      channelSpan.className="channel-link";
+      channelSpan.dataset.owner=video.owner;
+      channelSpan.textContent=chName;
+
+      const views=video.views||0;
+      meta.appendChild(channelSpan);
+      meta.appendChild(document.createTextNode(" • "+createdAt.toLocaleString()+` • ${views} izlenme`));
+
+      const cat=document.createElement("div");
+      cat.className="category-pill";
+      cat.textContent=video.categoryLabel || video.category || "Genel";
+
+      texts.appendChild(title);texts.appendChild(meta);texts.appendChild(cat);
+      info.appendChild(avatar);info.appendChild(texts);
+      card.appendChild(thumb);card.appendChild(info);
+
+      card.addEventListener("click",()=>openVideoView(video.id));
+      [avatar,channelSpan].forEach(el=>{
+        el.addEventListener("click",e=>{
+          e.stopPropagation();
+          const owner=el.dataset.owner;
+          if(owner) openChannelView(owner);
+        });
+      });
+
+      targetGrid.appendChild(card);
+    });
+  }
+
+  function renderHomeVideos(searchQuery=""){
+    const all=getAllVideos().filter(v=>!v.isShort);
+    let filtered=all;
+    if(searchQuery){
+      const q=searchQuery.toLowerCase();
+      filtered=all.filter(v=>
+        v.title.toLowerCase().includes(q) ||
+        (v.desc && v.desc.toLowerCase().includes(q))
+      );
+    }
+    renderVideoList(videoGrid,videosEmpty,filtered);
+  }
+  function renderShorts(){
+    const shorts=getAllVideos().filter(v=>v.isShort);
+    renderVideoList(shortsGrid,shortsEmpty,shorts);
+  }
+  function renderSubscriptions(){
+    const acc=getCurrentAccount();
+    subsVideos.innerHTML="";
+    if(!acc || !Array.isArray(acc.subscriptions) || acc.subscriptions.length===0){
+      subsVideos.style.display="none";
+      subsEmpty.style.display="flex";return;
+    }
+    const all=getAllVideos().filter(v=>acc.subscriptions.includes(v.owner) && !v.isShort);
+    renderVideoList(subsVideos,subsEmpty,all);
+  }
+  function renderAllVideoSections(searchQuery=""){
+    renderHomeVideos(searchQuery);
+    renderShorts();
+    renderSubscriptions();
+  }
+
+  /* ========= MÜZİK RENDER ========= */
+  function getMusicForCurrent(){
+    const acc=getCurrentAccount();
+    return acc?acc.music||[]:[];
+  }
+  function renderMusic(){
+    const acc=getCurrentAccount();
+    const tracks=getMusicForCurrent();
+    musicGrid.innerHTML="";
+    if(!acc || tracks.length===0){
+      musicGrid.style.display="none";
+      musicEmpty.style.display="flex";return;
+    }
+    musicGrid.style.display="grid";
+    musicEmpty.style.display="none";
+
+    tracks.forEach(track=>{
+      const card=document.createElement("article");
+      card.className="music-card";
+
+      const audioWrap=document.createElement("div");
+      audioWrap.className="audio-thumb";
+      const infoLine=document.createElement("div");
+      infoLine.textContent=track.title;
+      const audio=document.createElement("audio");
+      audio.controls=true;
+      if(track.dataUrl) audio.src=track.dataUrl;
+      audioWrap.appendChild(infoLine);audioWrap.appendChild(audio);
+
+      const info=document.createElement("div");
+      info.className="video-info";
+      const avatar=document.createElement("div");
+      avatar.className="channel-avatar";
+      avatar.dataset.owner=track.owner;
+
+      const ownerAcc=state.accounts[track.owner];
+      const ch=ownerAcc?ownerAcc.channel||{}:{};
+      const chName=ch.name||track.owner||"Kanal";
+
+      if(ch.avatarDataUrl){
+        const img=document.createElement("img");img.src=ch.avatarDataUrl;
+        avatar.appendChild(img);
+      }else{
+        const s=document.createElement("span");
+        s.textContent=chName.trim()[0]?chName.trim()[0].toUpperCase():"?";
+        avatar.appendChild(s);
+      }
+
+      const texts=document.createElement("div");texts.className="video-texts";
+      const title=document.createElement("div");
+      title.className="video-title";title.textContent=track.title;
+
+      const meta=document.createElement("div");
+      meta.className="video-meta";
+      const createdAt=new Date(track.createdAt);
+      const listens=track.listens||0;
+      meta.textContent=chName+" • "+createdAt.toLocaleString()+` • ${listens} dinlenme`;
+
+      const genre=document.createElement("div");
+      genre.className="category-pill";
+      genre.textContent=track.genre||"Müzik";
+
+      texts.appendChild(title);texts.appendChild(meta);texts.appendChild(genre);
+      info.appendChild(avatar);info.appendChild(texts);
+
+      card.appendChild(audioWrap);card.appendChild(info);
+
+      card.addEventListener("click",()=>openMusicView(track.id));
+      avatar.addEventListener("click",e=>{
+        e.stopPropagation();
+        const owner=avatar.dataset.owner;
+        if(owner) openChannelView(owner);
+      });
+
+      musicGrid.appendChild(card);
+    });
+  }
+
+  /* ========= KANAL GÖRÜNÜMÜ ========= */
+  function openChannelView(username){
+    const acc=state.accounts[username];
+    if(!acc) return;
+    state.currentChannelView=username;
+    const ch=acc.channel||{};
+    const name=ch.name||username;
+    const desc=ch.desc||"Bu kanal için henüz açıklama yok.";
+    const vids=(acc.videos||[]).filter(v=>!v.isShort);
+    const music=acc.music||[];
+
+    channelViewName.textContent=name;
+    channelViewMeta.textContent=`${vids.length} video • ${music.length} müzik`;
+    channelViewDesc.textContent=desc;
+
+    channelViewAvatar.innerHTML="";
+    if(ch.avatarDataUrl){
+      const img=document.createElement("img");img.src=ch.avatarDataUrl;
+      channelViewAvatar.appendChild(img);
+    }else{
+      const span=document.createElement("span");
+      span.id="channelViewAvatarInitial";
+      span.textContent=name.trim()[0]?name.trim()[0].toUpperCase():"?";
+      channelViewAvatar.appendChild(span);
+    }
+
+    renderVideoList(channelViewVideos,channelViewVideosEmpty,vids);
+
+    channelViewMusic.innerHTML="";
+    if(!music.length){
+      channelViewMusic.style.display="none";
+      channelViewMusicEmpty.style.display="flex";
+    }else{
+      channelViewMusic.style.display="grid";
+      channelViewMusicEmpty.style.display="none";
+      music.forEach(track=>{
+        const card=document.createElement("article");
+        card.className="music-card";
+
+        const audioWrap=document.createElement("div");
+        audioWrap.className="audio-thumb";
+        const infoLine=document.createElement("div");
+        infoLine.textContent=track.title;
+        const audio=document.createElement("audio");
+        audio.controls=true;
+        if(track.dataUrl) audio.src=track.dataUrl;
+        audioWrap.appendChild(infoLine);audioWrap.appendChild(audio);
+
+        const texts=document.createElement("div");
+        texts.className="video-texts";
+        const meta=document.createElement("div");
+        meta.className="video-meta";
+        const listens=track.listens||0;
+        meta.textContent=(track.genre||"Müzik")+` • ${listens} dinlenme`;
+
+        texts.appendChild(meta);
+        card.appendChild(audioWrap);
+        card.appendChild(texts);
+
+        card.addEventListener("click",()=>openMusicView(track.id));
+
+        channelViewMusic.appendChild(card);
+      });
+    }
+    showSection("channelView");
+  }
+
+  /* ========= VIDEO VIEW / LIKE / COMMENT / SUB ========= */
+  function updateLikeUI(video){
+    const likedBy=video.likedBy||[];
+    const count=likedBy.length||0;
+    const hasUser = !!state.currentUser && likedBy.includes(state.currentUser);
+    videoLikeCount.textContent=`(${count})`;
+    if(hasUser){
+      videoLikeBtn.classList.add("liked");
+      videoLikeText.textContent="Beğenildi";
+      videoLikeIcon.textContent="❤️";
+    }else{
+      videoLikeBtn.classList.remove("liked");
+      videoLikeText.textContent="Beğen";
+      videoLikeIcon.textContent="👍";
+    }
+  }
+  function renderComments(video){
+    commentsList.innerHTML="";
+    const comments=video.comments||[];
+    if(!comments.length){
+      const div=document.createElement("div");
+      div.style.fontSize="12px";div.style.color="#9ca3af";
+      div.textContent="Henüz yorum yok. İlk yorumu sen yaz.";
+      commentsList.appendChild(div);return;
+    }
+    comments.forEach(c=>{
+      const item=document.createElement("div");
+      item.className="comment-item";
+      const meta=document.createElement("div");
+      meta.className="comment-meta";
+      const date=new Date(c.createdAt);
+      meta.textContent=`${c.user} • ${date.toLocaleString()}`;
+      const text=document.createElement("div");
+      text.textContent=c.text;
+      item.appendChild(meta);item.appendChild(text);
+      commentsList.appendChild(item);
+    });
+  }
+  function renderRecommended(currentVideo){
+    recommendedList.innerHTML="";
+    const all=getAllVideos().filter(v=>v.id!==currentVideo.id && v.isShort===currentVideo.isShort);
+    if(!all.length){
+      const div=document.createElement("div");
+      div.style.fontSize="12px";div.style.color="#9ca3af";
+      div.textContent="Henüz önerilecek başka video yok.";
+      recommendedList.appendChild(div);return;
+    }
+    all.sort((a,b)=>{
+      const aSame=a.category===currentVideo.category?1:0;
+      const bSame=b.category===currentVideo.category?1:0;
+      if(bSame!==aSame) return bSame-aSame;
+      return (b.createdAt||0)-(a.createdAt||0);
+    });
+    const top=all.slice(0,5);
+    top.forEach(v=>{
+      const item=document.createElement("div");
+      item.className="recommended-item";
+      item.dataset.videoId=v.id;
+
+      const thumb=document.createElement("div");
+      thumb.className="recommended-thumb";
+      if(v.dataUrl){
+        const vid=document.createElement("video");
+        vid.src=v.dataUrl;vid.muted=true;
+        thumb.appendChild(vid);
+      }
+
+      const texts=document.createElement("div");
+      texts.className="recommended-texts";
+      const title=document.createElement("div");
+      title.style.fontWeight="600";title.textContent=v.title;
+      const meta=document.createElement("div");
+      meta.style.fontSize="11px";meta.style.color="#9ca3af";
+      const ownerAcc=state.accounts[v.owner];
+      const ch=ownerAcc?ownerAcc.channel||{}:{};
+      const chName=ch.name||v.owner||"Kanal";
+      meta.textContent=chName;
+
+      texts.appendChild(title);texts.appendChild(meta);
+      item.appendChild(thumb);item.appendChild(texts);
+      item.addEventListener("click",()=>openVideoView(v.id));
+      recommendedList.appendChild(item);
+    });
+  }
+  function updateSubscribeUI(video){
+    const channelUser=video.owner;
+    const subsCount=countSubscribers(channelUser);
+    subscribeInfo.textContent=`${subsCount} abone (demo)`;
+
+    if(!state.currentUser){
+      subscribeBtn.style.display="inline-flex";
+      subscribeBtn.textContent="Giriş yapıp abone ol";
+      return;
+    }
+    if(state.currentUser===channelUser){
+      subscribeBtn.style.display="none";return;
+    }
+    const acc=getCurrentAccount(); if(!acc) return;
+    if(!Array.isArray(acc.subscriptions)) acc.subscriptions=[];
+    const subscribed=acc.subscriptions.includes(channelUser);
+    subscribeBtn.style.display="inline-flex";
+    subscribeBtn.textContent=subscribed?"Abone olundu":"Kanala abone ol";
+  }
+
+  function openVideoView(videoId){
+    const video=findVideoById(videoId);
+    if(!video) return;
+    state.currentVideoId=videoId;
+    video.views=(video.views||0)+1;
+    saveAccountsToStorage();
+
+    videoViewTitle.textContent=video.title;
+    videoViewPlayer.src=video.dataUrl||"";
+    const ownerAcc=state.accounts[video.owner];
+    const ch=ownerAcc?ownerAcc.channel||{}:{};
+    const chName=ch.name||video.owner||"Kanal";
+    const createdAt=new Date(video.createdAt);
+    const views=video.views||0;
+    videoViewChannelName.textContent=chName;
+    videoViewChannelName.dataset.owner=video.owner;
+    videoViewMeta.textContent=`${chName} • ${createdAt.toLocaleString()} • ${views} izlenme`;
+    videoViewDesc.textContent=video.desc||"Bu video için açıklama eklenmemiş.";
+
+    if(!Array.isArray(video.likedBy)) video.likedBy=[];
+    if(!Array.isArray(video.comments)) video.comments=[];
+
+    updateLikeUI(video);
+    renderComments(video);
+    renderRecommended(video);
+    updateSubscribeUI(video);
+    renderAllVideoSections();
+    showSection("videoView");
+  }
+
+  videoLikeBtn.addEventListener("click",()=>{
+    if(!state.currentVideoId) return;
+    const video=findVideoById(state.currentVideoId);
+    if(!video) return;
+    if(!state.currentUser){
+      alert("Beğeni için önce bir hesaba giriş yapmalısın.");
+      return;
+    }
+    if(!Array.isArray(video.likedBy)) video.likedBy=[];
+    const idx=video.likedBy.indexOf(state.currentUser);
+    if(idx>=0) video.likedBy.splice(idx,1);
+    else video.likedBy.push(state.currentUser);
+    saveAccountsToStorage();
+    updateLikeUI(video);
+  });
+
+  commentForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!state.currentVideoId) return;
+    const video=findVideoById(state.currentVideoId);
+    if(!video) return;
+    if(!state.currentUser){
+      alert("Yorum için önce bir hesaba giriş yapmalısın.");
+      return;
+    }
+    const text=commentText.value.trim();
+    if(!text) return;
+    if(!Array.isArray(video.comments)) video.comments=[];
+    video.comments.push({user:state.currentUser,text,createdAt:Date.now()});
+    commentText.value="";
+    saveAccountsToStorage();
+    renderComments(video);
+  });
+
+  subscribeBtn.addEventListener("click",()=>{
+    if(!state.currentVideoId) return;
+    const video=findVideoById(state.currentVideoId);
+    if(!video) return;
+    if(!state.currentUser){
+      alert("Abone olmak için önce bir hesaba giriş yapmalısın.");
+      return;
+    }
+    if(state.currentUser===video.owner){
+      alert("Kendi kanalına abone olamazsın :)");
+      return;
+    }
+    const acc=getCurrentAccount(); if(!acc) return;
+    if(!Array.isArray(acc.subscriptions)) acc.subscriptions=[];
+    const idx=acc.subscriptions.indexOf(video.owner);
+    if(idx>=0) acc.subscriptions.splice(idx,1);
+    else acc.subscriptions.push(video.owner);
+    saveAccountsToStorage();
+    updateSubscribeUI(video);
+    renderSubscriptions();
+  });
+
+  videoViewChannelName.addEventListener("click",()=>{
+    const owner=videoViewChannelName.dataset.owner;
+    if(owner) openChannelView(owner);
+  });
+
+  /* ========= MUSIC VIEW / COMMENTS ========= */
+  function renderMusicComments(track){
+    musicCommentsList.innerHTML="";
+    const comments=track.comments||[];
+    if(!comments.length){
+      const div=document.createElement("div");
+      div.style.fontSize="12px";div.style.color="#9ca3af";
+      div.textContent="Henüz yorum yok. İlk yorumu sen yaz.";
+      musicCommentsList.appendChild(div);return;
+    }
+    comments.forEach(c=>{
+      const item=document.createElement("div");
+      item.className="comment-item";
+      const meta=document.createElement("div");
+      meta.className="comment-meta";
+      const date=new Date(c.createdAt);
+      meta.textContent=`${c.user} • ${date.toLocaleString()}`;
+      const text=document.createElement("div");
+      text.textContent=c.text;
+      item.appendChild(meta);item.appendChild(text);
+      musicCommentsList.appendChild(item);
+    });
+  }
+  function openMusicView(trackId){
+    const found=findTrackById(trackId);
+    if(!found) return;
+    const track=found.track;
+    state.currentTrackId=trackId;
+    track.listens=(track.listens||0)+1;
+    saveAccountsToStorage();
+
+    musicViewTitle.textContent=track.title;
+    musicViewAudio.src=track.dataUrl||"";
+    const ownerAcc=state.accounts[track.owner];
+    const ch=ownerAcc?ownerAcc.channel||{}:{};
+    const chName=ch.name||track.owner||"Kanal";
+    const createdAt=new Date(track.createdAt);
+    const listens=track.listens||0;
+    musicViewChannelName.textContent=chName;
+    musicViewMeta.textContent=`${chName} • ${createdAt.toLocaleString()} • ${listens} dinlenme`;
+    musicViewDesc.textContent=track.desc||"Bu parça için açıklama eklenmemiş.";
+
+    if(!Array.isArray(track.comments)) track.comments=[];
+    renderMusicComments(track);
+    renderMusic();
+    showSection("musicView");
+  }
+  musicCommentForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!state.currentTrackId) return;
+    const found=findTrackById(state.currentTrackId);
+    if(!found) return;
+    const track=found.track;
+    if(!state.currentUser){
+      alert("Yorum için önce bir hesaba giriş yapmalısın.");
+      return;
+    }
+    const text=musicCommentText.value.trim();
+    if(!text) return;
+    if(!Array.isArray(track.comments)) track.comments=[];
+    track.comments.push({user:state.currentUser,text,createdAt:Date.now()});
+    musicCommentText.value="";
+    saveAccountsToStorage();
+    renderMusicComments(track);
+  });
+
+  /* ========= YÜKLEME FORM’LARI ========= */
+  const avatarFileInput=document.getElementById("avatarFile");
+  const clearAvatarBtn=document.getElementById("clearAvatarBtn");
+
+  musicForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    const acc=getCurrentAccount(); if(!acc){
+      alert("Önce bir hesap oluşturmalısın.");
+      showSection("settings");
+      return;
+    }
+    const titleInput=document.getElementById("musicTitle");
+    const descInput=document.getElementById("musicDesc");
+    const genreInput=document.getElementById("musicGenre");
+    const fileInput=document.getElementById("musicFile");
+    const file=fileInput.files[0];
+    if(!file) return;
+
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const dataUrl=ev.target.result;
+      const track={
+        id:Date.now(),
+        title:titleInput.value.trim()||"Untitled track",
+        desc:descInput.value.trim(),
+        genre:genreInput.value.trim(),
+        dataUrl,
+        createdAt:Date.now(),
+        owner:state.currentUser,
+        listens:0,
+        comments:[]
+      };
+      acc.music.unshift(track);
+      if(!saveAccountsToStorage()){acc.music.shift();return;}
+      titleInput.value="";descInput.value="";genreInput.value="";fileInput.value="";
+      renderMusic();
+      showSection("music");
+    };
+    reader.readAsDataURL(file);
+  });
+
+  uploadForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    const acc=getCurrentAccount(); if(!acc){
+      alert("Önce bir hesap oluşturmalısın.");
+      showSection("settings");
+      return;
+    }
+    const titleInput=document.getElementById("videoTitle");
+    const descInput=document.getElementById("videoDesc");
+    const catSelect=document.getElementById("videoCategory");
+    const isShortCheckbox=document.getElementById("videoIsShort");
+    const fileInput=document.getElementById("videoFile");
+    const file=fileInput.files[0];
+    if(!file) return;
+
+    const isShort=!!isShortCheckbox.checked;
+    const tempVideo=document.createElement("video");
+    tempVideo.preload="metadata";
+
+    tempVideo.onloadedmetadata=()=>{
+      window.URL.revokeObjectURL(tempVideo.src);
+      const duration=tempVideo.duration;
+      if(isShort && duration>60){
+        alert("Shorts için video süresi 60 saniyeyi geçemez.");
+        return;
+      }
+      const reader=new FileReader();
+      reader.onload=ev=>{
+        const dataUrl=ev.target.result;
+        const selOpt=catSelect.options[catSelect.selectedIndex];
+        const categoryLabel=selOpt.textContent;
+        const video={
+          id:Date.now(),
+          title:titleInput.value.trim()||"Untitled video",
+          desc:descInput.value.trim(),
+          category:catSelect.value,
+          categoryLabel,
+          isShort,
+          dataUrl,
+          createdAt:Date.now(),
+          owner:state.currentUser,
+          likedBy:[],
+          comments:[],
+          views:0
+        };
+        acc.videos.unshift(video);
+        if(!saveAccountsToStorage()){acc.videos.shift();return;}
+        titleInput.value="";descInput.value="";catSelect.value="education";isShortCheckbox.checked=false;fileInput.value="";
+        renderAllVideoSections();
+        showSection("home");
+      };
+      reader.readAsDataURL(file);
+    };
+    tempVideo.src=URL.createObjectURL(file);
+  });
+
+  /* ========= KANAL FORM & AVATAR ========= */
+  const accountForm=document.getElementById("accountForm");
+  accountForm.addEventListener("submit",e=>{
+    e.preventDefault();
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      return;
+    }
+    const acc=getCurrentAccount(); if(!acc){
+      alert("Önce bir hesaba giriş yapmalısın.");
+      showSection("settings");
+      return;
+    }
+    const nameInput=document.getElementById("channelName");
+    const descInput=document.getElementById("channelDesc");
+    acc.channel.name=nameInput.value.trim()||acc.channel.name||state.currentUser;
+    acc.channel.desc=descInput.value.trim();
+    saveAccountsToStorage();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+  });
+
+  avatarFileInput.addEventListener("change",()=>{
+    if(!dataDirHandle){
+      alert("Önce Data klasörünü seçmelisin.");
+      showSection("settings");
+      avatarFileInput.value="";
+      return;
+    }
+    const acc=getCurrentAccount(); if(!acc){avatarFileInput.value="";return;}
+    const file=avatarFileInput.files[0];
+    if(!file) return;
+    const reader=new FileReader();
+    reader.onload=e=>{
+      acc.channel.avatarDataUrl=e.target.result;
+      if(!saveAccountsToStorage()){acc.channel.avatarDataUrl=null;return;}
+      updateHeaderUI();
+      renderAllVideoSections();
+      renderMusic();
+    };
+    reader.readAsDataURL(file);
+  });
+  clearAvatarBtn.addEventListener("click",()=>{
+    const acc=getCurrentAccount(); if(!acc) return;
+    acc.channel.avatarDataUrl=null;
+    avatarFileInput.value="";
+    saveAccountsToStorage();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+  });
+
+  /* ========= DİL SEÇİMİ ========= */
+  const langSelectSettings=document.getElementById("langSelectSettings");
+  langSelectSettings.addEventListener("change",()=>applyLanguage(langSelectSettings.value));
+
+  /* ========= SEARCH ========= */
+  const searchInput=document.getElementById("searchInput");
+  const searchBtn=document.getElementById("searchBtn");
+  function runSearch(){
+    const q=searchInput.value.trim();
+    renderHomeVideos(q);
+  }
+  searchBtn.addEventListener("click",runSearch);
+  searchInput.addEventListener("keydown",e=>{if(e.key==="Enter") runSearch();});
+
+  /* ========= DATA KLASÖRÜ BUTONLARI ========= */
+  document.getElementById("chooseDataDirBtn").addEventListener("click",chooseDataFolder);
+  document.getElementById("saveToDataBtn").addEventListener("click",()=>saveStateToDataFolder(false));
+  document.getElementById("loadFromDataBtn").addEventListener("click",loadStateFromDataFolder);
+
+  /* ========= INIT ========= */
+  (function init(){
+    // tarayıcıda kalıcı ayar yok; varsayılan TR
+    state.lang="tr";
+    langSelectSettings.value="tr";
+    applyLanguage(state.lang);
+
+    loadAccountsFromStorage();
+    loadCurrentUserFromStorage();
+
+    updateAccountLoginCard();
+    updateHeaderUI();
+    renderAllVideoSections();
+    renderMusic();
+  })();
+</script>
+</body>
+</html>
