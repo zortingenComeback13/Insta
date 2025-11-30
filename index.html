@@ -38,7 +38,7 @@
     }
     .search-area input::placeholder{color:#777}
     .search-btn{
-      width:52px;height:36px;border-radius:0 18px 18px 0;
+      width:100px;height:39px;border-radius:0 25px 25px 0;
       background:#222;border:1px solid #303030;border-left:none;
       display:flex;align-items:center;justify-content:center;font-size:16px
     }
@@ -74,15 +74,20 @@
       .logo-sub{display:none}
     }
 
-    aside{
-      border-right:1px solid #1f1f1f;background:#050505;
-      padding:10px 8px 12px;position:sticky;top:60px;align-self:start;
-      max-height:calc(100vh - 60px);overflow-y:auto
-    }
+  aside{
+  border-right:1px solid #1f1f1f;
+  background:#050505; /* istersen kendi gradientini bırak */
+  padding:10px 8px 12px;
+  /* havada kalmaması için stretch + tam yükseklik */
+  align-self:stretch;
+  min-height:calc(100vh - 60px);
+  overflow-y:auto; /* içerik taşarsa scrol olsun */
+  }
+
     .nav-section{margin-bottom:16px}
     .nav-item{
-      width:100%;display:flex;align-items:center;gap:10px;
-      padding:8px 10px;border-radius:10px;font-size:14px;color:#e5e5e5;
+      width:100%;display:flex;align-items:center;gap:30px;
+      padding:10px 16px;border-radius:100px;font-size:14px;color:#e5e5e5;
       transition:background .15s,transform .08s
     }
     .nav-item:hover{background:#181818}
@@ -273,12 +278,12 @@
 
   <div class="search-area">
     <input type="text" id="searchInput" placeholder="Videolarda ara" />
-    <button class="search-btn" id="searchBtn">🔍</button>
+    <button class="search-btn" id="searchBtn">Ara</button>
   </div>
 
   <div class="header-right">
     <button class="upload-icon-btn" id="headerUploadBtn">
-      ⬆️ <span>Yükle</span>
+       <span>Yükle</span>
     </button>
 
     <div class="avatar-wrapper" id="openAccountFromAvatar">
@@ -294,22 +299,22 @@
   <aside>
     <div class="nav-section">
       <button class="nav-item active" data-section="home">
-        <span class="nav-icon">▶️</span><span class="label">Ana Sayfa</span>
+        </span><span class="label">Ana Sayfa</span>
       </button>
       <button class="nav-item" data-section="upload">
-        <span class="nav-icon">⬆️</span><span class="label">Video Yükle</span>
+        </span><span class="label">Video Yükle</span>
       </button>
       <button class="nav-item" data-section="music">
-        <span class="nav-icon">🎵</span><span class="label">Insta Music</span>
+        </span><span class="label">Insta Music</span>
       </button>
       <button class="nav-item" data-section="shorts">
-        <span class="nav-icon">📱</span><span class="label">Shorts</span>
+        </span><span class="label">Shorts</span>
       </button>
       <button class="nav-item" data-section="subs">
-        <span class="nav-icon">📺</span><span class="label">Abonelikler</span>
+        </span><span class="label">Abonelikler</span>
       </button>
       <button class="nav-item" data-section="settings">
-        <span class="nav-icon">⚙️</span><span class="label">Ayarlar</span>
+        </span><span class="label">Ayarlar</span>
       </button>
     </div>
   </aside>
@@ -327,7 +332,6 @@
       </div>
 
       <div class="banner">
-        <div class="banner-icon">💡</div>
         <div>
           Videolar ve müzikler seçtiğin Data klasörüne
           <code>insta-data.json</code> ve medya dosyaları olarak kaydedilir.
@@ -353,7 +357,6 @@
       </div>
 
       <div id="uploadNoChannelNotice" class="banner" style="display:none;">
-        <div class="banner-icon">⚠️</div>
         <div class="notice-text">
           Video yüklemek için önce Ayarlar sekmesinden bir hesap / kanal oluştur.
         </div>
@@ -431,7 +434,6 @@
       </div>
 
       <div id="musicNoChannelNotice" class="banner" style="display:none;">
-        <div class="banner-icon">⚠️</div>
         <div class="notice-text">
           Müzik eklemek için önce Ayarlar sekmesinden bir hesap / kanal oluştur.
         </div>
@@ -590,9 +592,9 @@
               Insta, verilerini bu klasöre <code>insta-data.json</code> ve medya dosyaları olarak yazar. Eğer Data klasörün yoksa oluştur.
             </p>
             <div class="inline" style="flex-wrap:wrap;gap:8px;">
-              <button id="chooseDataDirBtn" class="btn-secondary">📁 Data klasörünü seç</button>
-              <button id="saveToDataBtn" class="btn-secondary">💾 Şimdi Data’ya kaydet</button>
-              <button id="loadFromDataBtn" class="btn-secondary">📂 Data’dan yükle</button>
+              <button id="chooseDataDirBtn" class="btn-secondary">Data klasörünü seç</button>
+              <button id="saveToDataBtn" class="btn-secondary">Şimdi Data’ya kaydet</button>
+              <button id="loadFromDataBtn" class="btn-secondary">Data’dan yükle</button>
             </div>
             <p style="font-size:11px;color:#9ca3af;margin-top:8px;">
               Not: Tarayıcı güvenliğinden dolayı klasörü otomatik seçemiyoruz.
